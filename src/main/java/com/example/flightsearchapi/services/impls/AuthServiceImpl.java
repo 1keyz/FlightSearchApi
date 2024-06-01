@@ -1,15 +1,17 @@
 package com.example.flightsearchapi.services.impls;
 
-import com.example.flightsearchapi.dtos.requests.LoginRequestDto;
-import com.example.flightsearchapi.dtos.requests.UserRequestDto;
-import com.example.flightsearchapi.dtos.responses.LoginResponseDto;
-import com.example.flightsearchapi.dtos.responses.UserResponseDto;
+
 import com.example.flightsearchapi.model.entities.User;
+import com.example.flightsearchapi.model.enums.RoleEnum;
 import com.example.flightsearchapi.repositories.UserRepository;
 import com.example.flightsearchapi.security.jwt.JwtService;
 import com.example.flightsearchapi.services.abstracts.AuthService;
 import com.example.flightsearchapi.services.abstracts.FlightService;
 import org.modelmapper.ModelMapper;
+import org.openapitools.model.LoginRequestDto;
+import org.openapitools.model.LoginResponseDto;
+import org.openapitools.model.UserRequestDto;
+import org.openapitools.model.UserResponseDto;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,6 +19,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -41,13 +46,15 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UserResponseDto register(UserRequestDto requestDto) {
-        User user = User.builder()
-                .name(requestDto.getName())
-                .surname(requestDto.getSurname())
-                .email(requestDto.getEmail())
-                .password(passwordEncoder.encode(requestDto.getPassword()))
-                .roleEnum(requestDto.getRoleEnum())
-                .build();
+        Set<RoleEnum> set = new HashSet<>();
+        set.add(RoleEnum.valueOf(requestDto.getRole().getValue()));
+
+        User user = new User();
+        user.setName(requestDto.getName());
+        user.setSurname(requestDto.getSurname());
+        user.setEmail(requestDto.getEmail());
+        user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
+        user.setRoleEnum(set);
 
         return modelMapper.map(userRepository.save(user),UserResponseDto.class);
     }
@@ -57,11 +64,10 @@ public class AuthServiceImpl implements AuthService {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(requestDto.getEmail(),requestDto.getPassword()));
 
-        LoginResponseDto loginResponseDto = LoginResponseDto.builder()
-                .email(requestDto.getEmail())
-                .password(requestDto.getPassword())
-                .token(jwtService.generateToken(requestDto.getEmail()))
-                .build();
+        LoginResponseDto loginResponseDto = new LoginResponseDto();
+        loginResponseDto.email(requestDto.getEmail());
+        loginResponseDto.setPassword(requestDto.getPassword());
+        loginResponseDto.setToken(jwtService.generateToken(requestDto.getEmail()));
 
         return loginResponseDto;
     }

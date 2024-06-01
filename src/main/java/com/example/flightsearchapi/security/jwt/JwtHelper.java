@@ -1,7 +1,5 @@
 package com.example.flightsearchapi.security.jwt;
 
-import com.example.flightsearchapi.model.entities.User;
-import com.example.flightsearchapi.security.service.UserDetail;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

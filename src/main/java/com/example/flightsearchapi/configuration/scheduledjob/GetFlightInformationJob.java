@@ -1,9 +1,7 @@
 package com.example.flightsearchapi.configuration.scheduledjob;
 
-import com.example.flightsearchapi.dtos.requests.FlightRequestDto;
-import com.example.flightsearchapi.dtos.requests.MockoonRequest;
+import com.example.flightsearchapi.dtos.MockoonsRequest;
 import com.example.flightsearchapi.services.abstracts.FlightService;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,13 +11,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Component
 @RequiredArgsConstructor
 public class GetFlightInformationJob {
-    @Value("${mockoon.url}")
+    @Value("${mockoons.url}")
     private String url;
     @Autowired
     private FlightService flightService;
@@ -28,15 +23,15 @@ public class GetFlightInformationJob {
 
     @Scheduled(cron = "0 0 12 * * ?")
     public void flightInformation() {
-        MockoonRequest requestDtos = flightInformationSupporter();
+        MockoonsRequest requestDtos = flightInformationSupporter();
         flightService.createAllFlight(requestDtos.getFlights());
     }
 
-    private MockoonRequest flightInformationSupporter() {
+    private MockoonsRequest flightInformationSupporter() {
         RestTemplate template = new RestTemplate(); // mockoona erişimimizi sağlıyor ve http verilerini alabiliyoruz
 
         try {
-            ResponseEntity<MockoonRequest> requestDtoList = template.getForEntity(url, MockoonRequest.class);
+            ResponseEntity<MockoonsRequest> requestDtoList = template.getForEntity(url, MockoonsRequest.class);
             return requestDtoList.getBody();
         }catch (RestClientException ex){
             throw new RuntimeException(ex.getMessage());

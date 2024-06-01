@@ -1,4 +1,4 @@
-package com.example.flightsearchapi.dtos.requests;
+package com.example.flightsearchapi.dtos;
 
 import lombok.Data;
 

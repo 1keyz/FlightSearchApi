@@ -28,7 +28,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         if (bCryptPasswordEncoder.matches(password,user.getPassword())){
             return new UsernamePasswordAuthenticationToken(email,password,new HashSet<>());
         }else {
-            throw new LoginException("your password or email is wrond check it !");
+            throw new LoginException("your password or email is wrong check it !");
         }
     }
 

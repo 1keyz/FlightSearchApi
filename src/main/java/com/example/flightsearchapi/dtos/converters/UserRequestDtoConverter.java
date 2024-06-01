@@ -1,9 +1,10 @@
 package com.example.flightsearchapi.dtos.converters;
 
-import com.example.flightsearchapi.dtos.responses.UserResponseDto;
+
 import com.example.flightsearchapi.model.entities.User;
 import org.modelmapper.Converter;
 import org.modelmapper.spi.MappingContext;
+import org.openapitools.model.UserResponseDto;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,12 +15,12 @@ public class UserRequestDtoConverter implements Converter<User, UserResponseDto>
     }
 
     public UserResponseDto convert(User user) {
-        UserResponseDto dto = UserResponseDto.builder()
-                .name(user.getName())
-                .surname(user.getSurname())
-                .email(user.getEmail())
-                .password(user.getPassword())
-                .build();
+        UserResponseDto dto = new UserResponseDto();
+        dto.setName(user.getName());
+        dto.surname(user.getSurname());
+        dto.setEmail(user.getEmail());
+        dto.setPassword(user.getPassword());
+
         return dto;
     }
 }

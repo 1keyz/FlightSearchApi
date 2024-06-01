@@ -1,13 +1,13 @@
 package com.example.flightsearchapi.services.impls;
 
 import com.example.flightsearchapi.advice.exception.NotFoundException;
-import com.example.flightsearchapi.dtos.requests.AirportRequestDto;
-import com.example.flightsearchapi.dtos.responses.AirportResponseDto;
 import com.example.flightsearchapi.model.entities.Airport;
 import com.example.flightsearchapi.repositories.AirportRepository;
 import com.example.flightsearchapi.services.abstracts.AirportService;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.openapitools.model.AirportRequestDto;
+import org.openapitools.model.AirportResponseDto;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

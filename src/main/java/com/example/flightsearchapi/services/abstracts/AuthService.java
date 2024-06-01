@@ -1,10 +1,10 @@
 package com.example.flightsearchapi.services.abstracts;
 
-import com.example.flightsearchapi.dtos.requests.LoginRequestDto;
-import com.example.flightsearchapi.dtos.requests.UserRequestDto;
-import com.example.flightsearchapi.dtos.responses.LoginResponseDto;
-import com.example.flightsearchapi.dtos.responses.UserResponseDto;
-import com.example.flightsearchapi.model.entities.User;
+
+import org.openapitools.model.LoginRequestDto;
+import org.openapitools.model.LoginResponseDto;
+import org.openapitools.model.UserRequestDto;
+import org.openapitools.model.UserResponseDto;
 
 import java.util.Optional;
 

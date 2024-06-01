@@ -1,0 +1,377 @@
+openapi: "3.0.2"
+info:
+  title: Flight Api
+  version: "1.0.0"
+servers:
+  - url: http://localhost:8080
+    description: localhost
+security:
+  - BearerToken: []
+
+
+paths:
+  /flight/add-flight:
+    post:
+      tags:
+        - flight
+      operationId: addFlight
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlightRequestDto'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/FlightResponseDto'
+        default:
+          $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - flight
+      operationId: updateFlight
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlightRequestDto'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/FlightResponseDto'
+
+    delete:
+      tags:
+        - flight
+      operationId: deleteFlight
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: OK
+
+  /flight/get-all:
+    get:
+      tags:
+         - flight
+      operationId: getAllFlight
+      responses:
+         200:
+           description: OK
+           content:
+             '*/*':
+              schema:
+                $ref: '#/components/schemas/FlightResponseDto'
+
+  /flight/flight-search:
+    post:
+      tags:
+        - flight
+      operationId: getFlightSearch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlightSearchRequestDto'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/FlightSearchResponseDto'
+
+  /auth/register:
+    post:
+      tags:
+        - auth
+      operationId: register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequestDto'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/UserResponseDto'
+
+  /auth/login:
+    post:
+      tags:
+        - auth
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequestDto'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/LoginResponseDto'
+
+  /auth/buy-flight/{flightCode}:
+    post:
+      tags:
+        - auth
+      operationId: buyFlight
+      parameters:
+        - name: flightCode
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/UserResponseDto'
+
+  /airport/add-airport:
+    post:
+      tags:
+        - airport
+      operationId: addAirport
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AirportRequestDto'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AirportResponseDto'
+
+    put:
+      tags:
+        - airport
+      operationId: updateAirport
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AirportResponseDto'
+
+  /airport/get-all:
+    get:
+      tags:
+        - airport
+      operationId: getAllAirport
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AirportResponseDto'
+
+    delete:
+      tags:
+        - aiport
+      operationId: deleteAirport
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: OK
+
+components:
+  securitySchemes:
+    BearerToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    UserResponseDto:
+      type: object
+      properties:
+        name:
+          type: string
+        surname:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+    LoginResponseDto:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        token:
+          type: string
+    FlightSearchResponseDto:
+      type: object
+      properties:
+        departureFlights:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlightResponseDto'
+        returnFlights:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlightResponseDto'
+    FlightResponseDto:
+      type: object
+      properties:
+        departureAirport:
+          $ref: '#/components/schemas/AirportResponseDto'
+        arrivalAirport:
+          $ref: '#/components/schemas/AirportResponseDto'
+        departureAt:
+          type: string
+          format: date-time
+        arrivalAt:
+          type: string
+          format: date-time
+        price:
+          type: number
+          format: double
+        flightCode:
+          type: integer
+    AirportResponseDto:
+      type: object
+      properties:
+        city:
+          type: string
+    UserRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+        surname:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+        role:
+          $ref: '#/components/schemas/EnumRole'
+    LoginRequestDto:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    FlightSearchRequestDto:
+      type: object
+      properties:
+        departureAirportCode:
+          type: integer
+          format: int64
+        destinationAirportCode:
+          type: integer
+          format: int64
+        departAt:
+          type: string
+          format: date
+        returnOn:
+          type: string
+          format: date
+    FlightRequestDto:
+      type: object
+      properties:
+        flightCode:
+          type: integer
+        departureAirportId:
+          type: integer
+          format: int64
+        arrivalAirportId:
+          type: integer
+          format: int64
+        departureAt:
+          type: string
+          format: date-time
+        arrivalAt:
+          type: string
+          format: date-time
+        price:
+          type: number
+          format: double
+    DepartureFlightRequestDto:
+      type: object
+      properties:
+        departureAirportId:
+          type: integer
+          format: int64
+        arrivalAirportId:
+          type: integer
+          format: int64
+        departureAt:
+          type: string
+          format: date
+    AirportRequestDto:
+      type: object
+      properties:
+        city:
+          type: string
+
+    EnumRole:
+      type: string
+      enum:
+        - ROLE_ADMIN
+        - ROLE_USER
+    ErrorResponse:
+      type: object
+      properties:
+        title:
+          type: string
+        detail:
+          type: string
