@@ -1,4 +1,4 @@
-package com.example.flightsearchapi.dtos.responses.errors;
+package com.example.flightsearchapi.dtos.errors;
 
 import com.example.flightsearchapi.model.enums.ErrorStatus;
 import lombok.AllArgsConstructor;

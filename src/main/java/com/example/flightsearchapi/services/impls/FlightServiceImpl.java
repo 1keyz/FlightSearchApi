@@ -1,23 +1,18 @@
 package com.example.flightsearchapi.services.impls;
 
 import com.example.flightsearchapi.advice.exception.NotFoundException;
-import com.example.flightsearchapi.dtos.requests.DepartureFlightRequestDto;
-import com.example.flightsearchapi.dtos.requests.FlightRequestDto;
-import com.example.flightsearchapi.dtos.requests.FlightySearchRequestDto;
-import com.example.flightsearchapi.dtos.responses.FlightResponseDto;
-import com.example.flightsearchapi.dtos.responses.FlightSearchResponseDto;
+import com.example.flightsearchapi.model.entities.Airport;
 import com.example.flightsearchapi.model.entities.Flight;
-import com.example.flightsearchapi.model.entities.User;
 import com.example.flightsearchapi.repositories.FlightRepository;
-import com.example.flightsearchapi.repositories.FlightSearchRepository;
 import com.example.flightsearchapi.services.abstracts.AirportService;
-import com.example.flightsearchapi.services.abstracts.AuthService;
 import com.example.flightsearchapi.services.abstracts.FlightService;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.openapitools.model.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,7 +24,6 @@ public class FlightServiceImpl implements FlightService {
     private FlightRepository flightRepository;
     private ModelMapper modelMapper;
     private AirportService airportService;
-    private FlightSearchRepository flightSearchRepository;
 
     @Override
     public void deleteFlight(long id) {
@@ -41,8 +35,8 @@ public class FlightServiceImpl implements FlightService {
         Flight flight = Flight.builder()
                 .departureAirport(airportService.findAirportById(requestDto.getDepartureAirportId()))
                 .arrivalAirport(airportService.findAirportById(requestDto.getArrivalAirportId()))
-                .departureDateTime(requestDto.getDepartureAt())
-                .arrivalDateTime(requestDto.getArrivalAt())
+                .departureDateTime(requestDto.getDepartureAt().toLocalDateTime())
+                .arrivalDateTime(requestDto.getArrivalAt().toLocalDateTime())
                 .price(requestDto.getPrice())
                 .build();
 
@@ -53,8 +47,8 @@ public class FlightServiceImpl implements FlightService {
     public FlightResponseDto updateFlight(FlightRequestDto requestDto, long id) {
         Flight flight = findFlightById(id);
         flight.setPrice(requestDto.getPrice());
-        flight.setArrivalDateTime(requestDto.getArrivalAt());
-        flight.setDepartureDateTime(requestDto.getDepartureAt());
+        flight.setArrivalDateTime(requestDto.getArrivalAt().toLocalDateTime());
+        flight.setDepartureDateTime(requestDto.getDepartureAt().toLocalDateTime());
         flight.setDepartureAirport(airportService.findAirportById(requestDto.getDepartureAirportId()));
         flight.setArrivalAirport(airportService.findAirportById(requestDto.getArrivalAirportId()));
 
@@ -81,14 +75,39 @@ public class FlightServiceImpl implements FlightService {
 
 
     @Override
-    public FlightSearchResponseDto getFlightSearch(FlightySearchRequestDto flightySearchRequestDto) {
-        FlightSearchResponseDto dto = new FlightSearchResponseDto();
-        dto.setDepartureFlights(departureFlights(flightySearchRequestDto.getDepartureFlightRequestDto()));
+    public FlightSearchResponseDto getFlightSearch(FlightSearchRequestDto requestDto) {
+        Airport departureAirport = airportService.findAirportById(requestDto.getDepartureAirportCode());
+        Airport destinationAirport = airportService.findAirportById(requestDto.getDestinationAirportCode());
 
-        if (flightySearchRequestDto.getReturnFlightRequestDto() != null){
-            dto.setReturnFlights(returnFlights(flightySearchRequestDto.getReturnFlightRequestDto()));
+        LocalDateTime departureAt = requestDto.getDepartAt().atStartOfDay();
+        LocalDateTime departEnd = requestDto.getDepartAt().atTime(LocalTime.MAX);
+
+        List<Flight> departureFlights = flightRepository.searchFlight(
+                departureAirport.getId(),
+                destinationAirport.getId(),
+                departureAt,
+                departEnd);
+
+        List<Flight> returnFlightList = null;
+        if(requestDto.getReturnOn() != null){
+            LocalDateTime returnStart = requestDto.getReturnOn().atStartOfDay();
+            LocalDateTime returnEnd = requestDto.getReturnOn().atTime(LocalTime.MAX);
+
+            returnFlightList = flightRepository.searchFlight(
+                    destinationAirport.getId(),
+                    departureAirport.getId(),
+                    returnStart,
+                    returnEnd);
         }
-        return dto;
+
+        FlightSearchResponseDto responseDto = new FlightSearchResponseDto();
+        responseDto.departureFlights(departureFlights.stream().map( dto
+                -> modelMapper.map(dto,FlightResponseDto.class)).collect(Collectors.toList()));
+
+        responseDto.returnFlights( returnFlightList.stream().map(
+                dto -> modelMapper.map(dto,FlightResponseDto.class)).collect(Collectors.toList()));
+
+        return responseDto;
     }
 
     @Override
@@ -100,30 +119,12 @@ public class FlightServiceImpl implements FlightService {
                     .price(req.getPrice())
                     .arrivalAirport(airportService.findAirportById(req.getArrivalAirportId()))
                     .departureAirport(airportService.findAirportById(req.getDepartureAirportId()))
-                    .arrivalDateTime(req.getArrivalAt())
-                    .departureDateTime(req.getDepartureAt())
+                    .arrivalDateTime(req.getArrivalAt().toLocalDateTime())
+                    .departureDateTime(req.getDepartureAt().toLocalDateTime())
                     .build();
             flightList.add(flight);
         }
         flightRepository.saveAll(flightList);
     }
 
-    private List<FlightResponseDto> departureFlights(DepartureFlightRequestDto requestDto){
-        List<Flight> flightList = flightSearchRepository.getFlight(requestDto);
-        List<FlightResponseDto> dtoList = new ArrayList<>();
-        for (Flight fl : flightList){
-            dtoList.add(modelMapper.map(fl,FlightResponseDto.class));
-        }
-        return dtoList;
-    }
-
-    private List<FlightResponseDto> returnFlights(DepartureFlightRequestDto requestDto){
-        List<Flight> flightList = flightSearchRepository.getFlight(requestDto);
-        List<FlightResponseDto> dtoList = new ArrayList<>();
-
-        for (Flight fl : flightList){
-            dtoList.add(modelMapper.map(fl,FlightResponseDto.class));
-        }
-        return dtoList;
-    }
 }

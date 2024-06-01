@@ -1,5 +1,6 @@
 package com.example.flightsearchapi;
 
+
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -9,5 +10,6 @@ class FlightSearchApiApplicationTests {
     @Test
     void contextLoads() {
     }
+
 
 }

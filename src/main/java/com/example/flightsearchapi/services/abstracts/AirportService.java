@@ -1,8 +1,8 @@
 package com.example.flightsearchapi.services.abstracts;
 
-import com.example.flightsearchapi.dtos.requests.AirportRequestDto;
-import com.example.flightsearchapi.dtos.responses.AirportResponseDto;
 import com.example.flightsearchapi.model.entities.Airport;
+import org.openapitools.model.AirportRequestDto;
+import org.openapitools.model.AirportResponseDto;
 
 import java.util.List;
 

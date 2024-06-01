@@ -1,12 +1,10 @@
 package com.example.flightsearchapi.dtos.requests;
 
+import com.example.flightsearchapi.dtos.DepartureFlightRequestDto;
 import lombok.Data;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
 @Data
-public class FlightySearchRequestDto {
+public class FlightSearchRequestDto {
     private DepartureFlightRequestDto departureFlightRequestDto;
     private DepartureFlightRequestDto returnFlightRequestDto;
 }
